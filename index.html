@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pemutar Musik Saya</title>
+    <!-- Materialize CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <style>
+        body {
+            background-color: #f5f5f5;
+        }
+
+        .music-player {
+            margin-top: 2rem;
+        }
+
+        .collection-item {
+            display: flex !important;
+            align-items: center !important;
+            padding: 10px 20px !important;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .collection-item.active {
+            background-color: #26a69a !important;
+        }
+
+        .collection-item img {
+            width: 50px;
+            height: 50px;
+            margin-right: 15px;
+            border-radius: 4px;
+        }
+
+        .now-playing {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .now-playing img {
+            width: 200px;
+            height: 200px;
+            border-radius: 8px;
+            margin: 1rem auto;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .btn-floating i {
+            font-size: 1.6rem;
+            line-height: 40px;
+        }
+
+        .chip {
+            margin: 5px;
+            cursor: pointer;
+        }
+
+        .chip.active {
+            background-color: #26a69a;
+            color: white;
+        }
+
+        .collection-item.hidden {
+            display: none !important;
+        }
+
+        .tag-container {
+            padding: 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .playlist-container {
+            height: 70vh; /* tinggi tetap */
+            overflow-y: auto;
+        }
+
+        .collection {
+            margin: 0;
+            border: none !important;
+        }
+
+        .collection-item.avatar {
+            min-height: 84px !important;
+            position: relative;
+            padding-left: 100px !important; /* Memperbesar space untuk gambar */
+        }
+
+        .collection-item img {
+            width: 60px !important;
+            height: 60px !important;
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .song-details {
+            display: flex;
+            flex-direction: column;
+            padding-top: 10px;
+        }
+
+        .song-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .song-artist {
+            font-size: 0.9rem;
+            color: #666;
+            margin: 4px 0;
+        }
+
+        .song-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 4px;
+        }
+
+        .song-tag {
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            background-color: #e0e0e0;
+            border-radius: 12px;
+            color: #666;
+        }
+
+        /* Custom scrollbar untuk playlist */
+        .playlist-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .playlist-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .playlist-container::-webkit-scrollbar-thumb {
+            background: #26a69a;
+            border-radius: 4px;
+        }
+
+        .playlist-container::-webkit-scrollbar-thumb:hover {
+            background: #1d7d74;
+        }
+
+        .progress-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 10px;
+            margin: 15px 0;
+        }
+
+        .progress {
+            flex: 1;
+            margin: 0 !important;
+            height: 8px !important;
+            border-radius: 4px;
+            background-color: rgba(0,0,0,0.1) !important;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress:hover .determinate {
+            background-color: #1db954;
+        }
+
+        .determinate {
+            transition: width 0.1s linear;
+        }
+
+        .current-time, .duration {
+            font-size: 0.8rem;
+            color: #666;
+            min-width: 45px;
+        }
+
+        /* Style untuk list lagu */
+        .collection-item.avatar {
+            min-height: 84px !important;
+            padding-left: 100px !important;
+        }
+
+        .song-details {
+            display: flex;
+            flex-direction: column;
+            padding: 8px 0;
+        }
+
+        .song-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: rgba(0,0,0,0.87);
+        }
+
+        .song-artist {
+            font-size: 0.9rem;
+            color: rgba(0,0,0,0.54);
+            margin: 4px 0;
+        }
+
+        .song-tags {
+            display: flex;
+            gap: 5px;
+            margin-top: 4px;
+        }
+
+        .song-tag {
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            background-color: #e0e0e0;
+            border-radius: 12px;
+            color: rgba(0,0,0,0.6);
+        }
+
+        .collection-item.avatar img {
+            width: 60px !important;
+            height: 60px !important;
+            left: 20px !important;
+            border-radius: 4px !important;
+        }
+
+        .collection-item:hover {
+            background-color: rgba(0,0,0,0.03) !important;
+        }
+
+        .collection-item.active {
+            background-color: rgba(38,166,154,0.1) !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <!-- Bagian Kiri - Now Playing -->
+            <div class="col s12 m4">
+                <div class="card">
+                    <div class="now-playing">
+                        <h5>Sedang Diputar</h5>
+                        <img src="https://via.placeholder.com/200" alt="Album art" id="currentArt" class="responsive-img">
+                        <h6 id="currentTitle" class="truncate">Pilih Lagu</h6>
+                        <p id="currentArtist" class="grey-text">-</p>
+                        
+                        <!-- Progress Bar -->
+                        <div class="progress-container">
+                            <span class="current-time">0:00</span>
+                            <div class="progress" style="cursor: pointer;">
+                                <div class="determinate"></div>
+                            </div>
+                            <span class="duration">0:00</span>
+                        </div>
+
+                        <!-- Controls -->
+                        <div class="controls">
+                            <a class="btn-floating waves-effect waves-light">
+                                <i class="material-icons">skip_previous</i>
+                            </a>
+                            <a class="btn-floating waves-effect waves-light play-btn">
+                                <i class="material-icons">play_arrow</i>
+                            </a>
+                            <a class="btn-floating waves-effect waves-light">
+                                <i class="material-icons">skip_next</i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bagian Kanan - Playlist -->
+            <div class="col s12 m8">
+                <div class="card">
+                    <div class="card-content">
+                        <span class="card-title">Playlist Saya</span>
+                        
+                        <!-- Tag Filter -->
+                        <div class="tag-container">
+                            <div class="chip active" data-tag="all">
+                                Semua
+                            </div>
+                            <div class="chip" data-tag="for-revenge">
+                                For Revenge
+                            </div>
+                            <div class="chip" data-tag="bernadya">
+                                Bernadya
+                            </div>
+                            <!-- <div class="chip" data-tag="pop">
+                                Pop
+                            </div>
+                            <div class="chip" data-tag="rock">
+                                Rock
+                            </div>
+                            <div class="chip" data-tag="jazz">
+                                Jazz
+                            </div>
+                            <div class="chip" data-tag="dangdut">
+                                Dangdut
+                            </div> -->
+                        </div>
+
+                        <!-- Playlist dengan fixed height -->
+                        <div class="playlist-container">
+                            <div class="collection">
+                                <div class="collection-item avatar" data-src="musik/For Revenge - Serana.mp3" data-tags="for-revenge">
+                                    <img src="images/fr.png" alt="Album art">
+                                    <div class="song-details">
+                                        <span class="song-title">Serana</span>
+                                        <span class="song-artist">For Revenge</span>
+                                        <div class="song-tags">
+                                            <span class="song-tag">For Revenge</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="collection-item avatar" data-src="musik/For Revenge - Sadrah.mp3" data-tags="for-revenge">
+                                    <img src="images/fr.png" alt="Album art">
+                                    <div class="song-details">
+                                        <span class="song-title">Sadrah</span>
+                                        <span class="song-artist">For Revenge</span>
+                                        <div class="song-tags">
+                                            <span class="song-tag">For Revenge</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="collection-item avatar" data-src="musik/For Revenge - Penyangkalan.mp3" data-tags="for-revenge">
+                                    <img src="images/fr.png" alt="Album art">
+                                    <div class="song-details">
+                                        <span class="song-title">Penyangkalan</span>
+                                        <span class="song-artist">For Revenge</span>
+                                        <div class="song-tags">
+                                            <span class="song-tag">For Revenge</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="collection-item avatar" data-src="musik/for Revenge - Semula.mp3" data-tags="for-revenge">
+                                    <img src="images/fr.png" alt="Album art">
+                                    <div class="song-details">
+                                        <span class="song-title">Semula</span>
+                                        <span class="song-artist">For Revenge</span>
+                                        <div class="song-tags">
+                                            <span class="song-tag">For Revenge</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="collection-item avatar" data-src="musik/For Revenge - Derana.mp3" data-tags="for-revenge">
+                                    <img src="images/fr.png" alt="Album art">
+                                    <div class="song-details">
+                                        <span class="song-title">Derana</span>
+                                        <span class="song-artist">For Revenge</span>
+                                        <div class="song-tags">
+                                            <span class="song-tag">For Revenge</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="collection-item avatar" data-src="musik/For Revenge - Jeda.mp3" data-tags="for-revenge">
+                                    <img src="images/fr.png" alt="Album art">
+                                    <div class="song-details">
+                                        <span class="song-title">Jeda</span>
+                                        <span class="song-artist">For Revenge</span>
+                                        <div class="song-tags">
+                                            <span class="song-tag">For Revenge</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="collection-item avatar" data-src="musik/For Revenge - Pulang.mp3" data-tags="for-revenge">
+                                    <img src="images/fr.png" alt="Album art">
+                                    <div class="song-details">
+                                        <span class="song-title">Pulang</span>
+                                        <span class="song-artist">For Revenge</span>
+                                        <div class="song-tags">
+                                            <span class="song-tag">For Revenge</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="collection-item avatar" data-src="musik/For Revenge - Untuk Siapa.mp3" data-tags="for-revenge">
+                                    <img src="images/fr.png" alt="Album art">
+                                    <div class="song-details">
+                                        <span class="song-title">Untuk Siapa</span>
+                                        <span class="song-artist">For Revenge</span>
+                                        <div class="song-tags">
+                                            <span class="song-tag">For Revenge</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="collection-item avatar" data-src="musik/for Revenge & Fiersa Besari - Ada Selamanya.mp3" data-tags="for-revenge">
+                                    <img src="images/fr.png" alt="Album art">
+                                    <div class="song-details">
+                                        <span class="song-title">Ada Selamanya</span>
+                                        <span class="song-artist">For Revenge & Fiersa Besari</span>
+                                        <div class="song-tags">
+                                            <span class="song-tag">For Revenge</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="collection-item avatar" data-src="musik/For Revenge Feat. Faizal Permana - Jentaka.mp3" data-tags="for-revenge">
+                                    <img src="images/fr.png" alt="Album art">
+                                    <div class="song-details">
+                                        <span class="song-title">Jentaka</span>
+                                        <span class="song-artist">For Revenge Feat. Faizal Permana</span>
+                                        <div class="song-tags">
+                                            <span class="song-tag">For Revenge</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="collection-item avatar" data-src="musik/For Revenge X Stereo Wall - Jakarta Hari Ini.mp3" data-tags="for-revenge">
+                                    <img src="images/fr.png" alt="Album art">
+                                    <div class="song-details">
+                                        <span class="song-title">Jakarta Hari Ini</span>
+                                        <span class="song-artist">For Revenge X Stereo Wall</span>
+                                        <div class="song-tags">
+                                            <span class="song-tag">For Revenge</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="collection-item avatar" data-src="musik/Gemaung.mp3" data-tags="for-revenge">
+                                    <img src="images/fr.png" alt="Album art">
+                                    <div class="song-details">
+                                        <span class="song-title">Gemaung</span>
+                                        <span class="song-artist">For Revenge</span>
+                                        <div class="song-tags">
+                                            <span class="song-tag">For Revenge</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="collection-item avatar" data-src="musik/Sendiri.mp3" data-tags="for-revenge">
+                                    <img src="images/fr.png" alt="Album art">
+                                    <div class="song-details">
+                                        <span class="song-title">Sendiri</span>
+                                        <span class="song-artist">For Revenge</span>
+                                        <div class="song-tags">
+                                            <span class="song-tag">For Revenge</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="collection-item avatar" data-src="musik/Putih Mata Memerah.mp3" data-tags="for-revenge">
+                                    <img src="images/fr.png" alt="Album art">
+                                    <div class="song-details">
+                                        <span class="song-title">Putih Mata Memerah</span>
+                                        <span class="song-artist">For Revenge</span>
+                                        <div class="song-tags">
+                                            <span class="song-tag">For Revenge</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Materialize JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inisialisasi variabel untuk pemutar musik
+            const audio = new Audio();
+            const songItems = document.querySelectorAll('.collection-item');
+            const currentTitle = document.getElementById('currentTitle');
+            const currentArtist = document.getElementById('currentArtist');
+            const currentArt = document.getElementById('currentArt');
+            const playBtn = document.querySelector('.play-btn');
+            const progressBar = document.querySelector('.determinate');
+            const chips = document.querySelectorAll('.chip');
+            let currentSong = null;
+            let isPlaying = false;
+
+            const progressContainer = document.querySelector('.progress');
+            const currentTimeEl = document.querySelector('.current-time');
+            const durationEl = document.querySelector('.duration');
+
+            // Fungsi filter lagu berdasarkan tag
+            function filterSongs(selectedTag) {
+                songItems.forEach(song => {
+                    const songTags = song.dataset.tags.split(',');
+                    if (selectedTag === 'all' || songTags.includes(selectedTag)) {
+                        song.classList.remove('hidden');
+                    } else {
+                        song.classList.add('hidden');
+                    }
+                });
+            }
+
+            // Event listener untuk chips/tags
+            chips.forEach(chip => {
+                chip.addEventListener('click', () => {
+                    // Reset semua chip ke tidak aktif
+                    chips.forEach(c => c.classList.remove('active'));
+                    
+                    // Aktifkan chip yang diklik
+                    chip.classList.add('active');
+                    
+                    const selectedTag = chip.dataset.tag;
+                    filterSongs(selectedTag);
+
+                    // Tampilkan toast notification
+                    M.toast({
+                        html: `Menampilkan lagu dengan kategori: ${chip.textContent.trim()}`,
+                        classes: 'rounded'
+                    });
+                });
+            });
+
+            // Fungsi untuk memutar lagu
+            function playSong(song) {
+                if (song.classList.contains('hidden')) return;
+
+                songItems.forEach(s => s.classList.remove('active'));
+                song.classList.add('active');
+                
+                const title = song.querySelector('.song-title').textContent;
+                const artist = song.querySelector('.song-artist').textContent;
+                const albumArt = song.querySelector('img').src;
+                
+                currentTitle.textContent = title;
+                currentArtist.textContent = artist;
+                currentArt.src = albumArt;
+                
+                audio.src = song.dataset.src;
+                audio.play()
+                    .then(() => {
+                        isPlaying = true;
+                        playBtn.querySelector('i').textContent = 'pause';
+                        currentSong = song;
+                        M.toast({html: `Memutar: ${title}`, classes: 'rounded'});
+                    })
+                    .catch(error => {
+                        console.error('Error playing audio:', error);
+                        M.toast({html: 'Error: Tidak dapat memutar lagu', classes: 'rounded red'});
+                    });
+
+                // Reset waktu saat memulai lagu baru
+                currentTimeEl.textContent = '0:00';
+                durationEl.textContent = '0:00';
+            }
+
+            // Event listener untuk klik pada lagu
+            songItems.forEach(song => {
+                song.addEventListener('click', () => {
+                    playSong(song);
+                });
+            });
+
+            // Update progress bar
+            audio.addEventListener('timeupdate', () => {
+                const progress = (audio.currentTime / audio.duration) * 100;
+                progressBar.style.width = `${progress}%`;
+                currentTimeEl.textContent = formatTime(audio.currentTime);
+            });
+
+            // Update durasi total saat metadata lagu dimuat
+            audio.addEventListener('loadedmetadata', () => {
+                durationEl.textContent = formatTime(audio.duration);
+            });
+
+            // Fungsi untuk memformat waktu dari detik ke MM:SS
+            function formatTime(seconds) {
+                const minutes = Math.floor(seconds / 60);
+                const remainingSeconds = Math.floor(seconds % 60);
+                return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+            }
+
+            // Fungsi untuk mengatur posisi lagu berdasarkan klik/drag pada progress bar
+            function setProgress(e) {
+                const width = progressContainer.clientWidth;
+                const clickX = e.offsetX;
+                const duration = audio.duration;
+                
+                if (isNaN(duration)) return; // Cek apakah durasi valid
+                
+                audio.currentTime = (clickX / width) * duration;
+            }
+
+            // Event listener untuk klik pada progress bar
+            progressContainer.addEventListener('click', setProgress);
+
+            // Event listener untuk drag pada progress bar
+            let isDragging = false;
+
+            progressContainer.addEventListener('mousedown', () => {
+                isDragging = true;
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (isDragging) {
+                    const rect = progressContainer.getBoundingClientRect();
+                    const clickX = e.clientX - rect.left;
+                    const width = progressContainer.clientWidth;
+                    
+                    if (clickX >= 0 && clickX <= width) {
+                        const duration = audio.duration;
+                        if (!isNaN(duration)) {
+                            audio.currentTime = (clickX / width) * duration;
+                        }
+                    }
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                isDragging = false;
+            });
+
+            // Touch events untuk mobile
+            progressContainer.addEventListener('touchstart', (e) => {
+                const touch = e.touches[0];
+                const rect = progressContainer.getBoundingClientRect();
+                const clickX = touch.clientX - rect.left;
+                setProgress({ offsetX: clickX });
+            });
+
+            // Reset progress bar saat lagu selesai
+            audio.addEventListener('ended', () => {
+                progressBar.style.width = '0%';
+                currentTimeEl.textContent = '0:00';
+            });
+
+            // Play/Pause button
+            playBtn.addEventListener('click', () => {
+                if (!currentSong) {
+                    const firstVisibleSong = Array.from(songItems).find(song => !song.classList.contains('hidden'));
+                    if (firstVisibleSong) {
+                        playSong(firstVisibleSong);
+                    }
+                    return;
+                }
+                
+                if (isPlaying) {
+                    audio.pause();
+                    playBtn.querySelector('i').textContent = 'play_arrow';
+                } else {
+                    audio.play();
+                    playBtn.querySelector('i').textContent = 'pause';
+                }
+                isPlaying = !isPlaying;
+            });
+
+            // Ketika lagu selesai
+            audio.addEventListener('ended', () => {
+                const visibleSongs = Array.from(songItems).filter(song => !song.classList.contains('hidden'));
+                const currentIndex = visibleSongs.indexOf(currentSong);
+                const nextSong = visibleSongs[currentIndex + 1];
+                
+                if (nextSong) {
+                    playSong(nextSong);
+                } else {
+                    isPlaying = false;
+                    playBtn.querySelector('i').textContent = 'play_arrow';
+                }
+            });
+
+            // Next button
+            document.querySelector('a i.material-icons:contains("skip_next")').parentElement.addEventListener('click', () => {
+                if (!currentSong) return;
+                
+                const visibleSongs = Array.from(songItems).filter(song => !song.classList.contains('hidden'));
+                const currentIndex = visibleSongs.indexOf(currentSong);
+                const nextSong = visibleSongs[currentIndex + 1];
+                
+                if (nextSong) {
+                    playSong(nextSong);
+                }
+            });
+
+            // Previous button
+            document.querySelector('a i.material-icons:contains("skip_previous")').parentElement.addEventListener('click', () => {
+                if (!currentSong) return;
+                
+                const visibleSongs = Array.from(songItems).filter(song => !song.classList.contains('hidden'));
+                const currentIndex = visibleSongs.indexOf(currentSong);
+                const prevSong = visibleSongs[currentIndex - 1];
+                
+                if (prevSong) {
+                    playSong(prevSong);
+                }
+            });
+
+            // Error handling
+            audio.addEventListener('error', (e) => {
+                console.error('Error loading audio:', e);
+                M.toast({html: 'Error: Tidak dapat memuat lagu', classes: 'rounded red'});
+            });
+        });
+    </script>
+</body>
+</html>
